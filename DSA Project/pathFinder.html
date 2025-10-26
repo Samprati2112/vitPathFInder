@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VIT Chennai PathFinder</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="main.js" defer></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/i18next@23.10.1/dist/umd/i18next.min.js"></script>
+  <script src="https://unpkg.com/i18next-http-backend@2.5.0/i18nextHttpBackend.min.js"></script>
+  <script src="https://unpkg.com/i18next-browser-languagedetector@7.1.0/i18nextBrowserLanguageDetector.min.js"></script>
+  <script src="i18n.js"></script>
+  <style type="text/css">
+    .destination {
+      border:1px solid grey;
+      border-radius: 8px;
+      padding:10px 0;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-900 text-gray-100 font-sans min-h-screen">
+  <!-- Header -->
+  <header class="text-center py-6 border-b border-gray-700">
+    <div class="inline-flex items-center gap-3 justify-center">
+      <div class="bg-indigo-600 text-white font-bold rounded-xl w-10 h-10 flex items-center justify-center text-xl">
+        V
+      </div>
+      <div>
+        <h1 class="text-3xl font-semibold" data-i18n="title">VIT Chennai PathFinder</h1>
+        <p class="text-sm text-gray-400" data-i18n="subtitle">Find and navigate across campus buildings</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main layout -->
+  <main class="flex flex-col lg:flex-row h-[calc(100vh-105px)]">
+    <!-- Left 25%: Inputs + Map -->
+    <section class="w-full lg:w-1/4 bg-gray-800 border-r border-gray-700 flex flex-col p-4">
+      <!-- Search Section -->
+      <div class="space-y-3">
+        <div class="flex gap-2">
+          <input
+            type="text"
+            id="from"
+            placeholder="From..."
+            data-i18n-placeholder="from" 
+            class="flex-1 h-11 px-3 rounded-lg bg-gray-900 border border-gray-700 text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+          <button
+            id="useGPSBtn"
+            class="px-3 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm font-medium text-gray-100"
+            data-i18n="useLocation">
+            Use My Location
+          </button>
+        </div>
+
+        <div class="flex gap-2">
+          <input
+            type="text"
+            id="to"
+            placeholder="To..."
+            data-i18n-placeholder="to"
+            class="flex-1 h-11 px-3 rounded-lg bg-gray-900 border border-gray-700 text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500" 
+          />
+          <button
+            id="findPath"
+            class="px-4 bg-indigo-600 hover:bg-indigo-700 rounded-lg font-medium text-white" data-i18n="findRoute">
+            Find Route
+          </button>
+        </div>
+      </div>
+
+      <p id="locationStatus" class="text-center text-gray-400 text-sm mt-3" data-i18n="locationFoundMessage"></p>
+
+      <!-- Map -->
+      <div id="map" class="flex-1 mt-3 mb-3 rounded-xl border border-gray-700"></div>
+    </section>
+
+    <!-- Right 75%: Cards -->
+    <section class="w-full lg:w-3/4 p-6 overflow-y-auto">
+      <div class="grid sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        <!-- Academic Blocks -->
+        <div class="bg-gray-800 rounded-2xl p-5 shadow-lg hover:shadow-xl transition">
+          <h2 class="text-xl font-semibold mb-2"data-i18n="academic">Academic Blocks</h2>
+          <p class="text-gray-400 text-sm mb-3"data-i18n="abDescMessage">Lecture halls, labs, and faculty cabins.</p>
+          <div class="grid grid-cols-2 gap-3">
+            <button class="destination hover:text-indigo-400"data-i18n="AB1">AB1</button>
+            <button class="destination hover:text-indigo-400"data-i18n="AB2">AB2</button>
+            <button class="destination hover:text-indigo-400"data-i18n="AB3">AB3</button>
+            <button class="destination hover:text-indigo-400"data-i18n="AB4">AB4</button>
+            <button class="destination hover:text-indigo-400"data-i18n="AB5">AB5</button>
+          </div>
+        </div>
+
+        <!-- Hostel Blocks -->
+        <div class="bg-gray-800 rounded-2xl p-5 shadow-lg hover:shadow-xl transition">
+          <h2 class="text-xl font-semibold mb-2" data-i18n="hostel">Hostel Blocks</h2>
+          <p class="text-gray-400 text-sm mb-3"data-i18n="hostelDescMessage">Comfortable accommodations for students.</p>
+          <div class="grid grid-cols-2 gap-3">
+            <button class="destination hover:text-indigo-400"data-i18n="aBlock">A Block</button>
+            <button class="destination hover:text-indigo-400"data-i18n="bBlock">B Block</button>
+            <button class="destination hover:text-indigo-400"data-i18n="cBlock">C Block</button>
+            <button class="destination hover:text-indigo-400"data-i18n="d1Block">D1 Block</button>
+            <button class="destination hover:text-indigo-400"data-i18n="d2Block">D2 Block</button>
+            <button class="destination hover:text-indigo-400"data-i18n="eBlock">E Block</button>
+          </div>
+        </div>
+
+        <!-- Main Gate -->
+        <div class="bg-gray-800 rounded-2xl p-5 shadow-lg hover:shadow-xl transition">
+          <button class="destination block hover:text-indigo-400 border-none">
+            <h2 class="text-xl font-semibold mb-2 "data-i18n="mainGate">Main Gate</h2>
+          </button>
+        </div>
+
+        <!-- Cafeteria -->
+        <div class="bg-gray-800 rounded-2xl p-5 shadow-lg hover:shadow-xl transition">
+          <h2 class="text-xl font-semibold mb-2"data-i18n="cafeteria">Cafeteria</h2>
+          <p class="text-gray-400 text-sm mb-3"data-i18n="cafeDescMessage">Canteens and cafes serving diverse cuisines.</p>
+          <div class="grid grid-cols-2 gap-3">
+            <button class="destination hover:text-indigo-400"data-i18n="gazebo">Gazebo</button>
+            <button class="destination hover:text-indigo-400"data-i18n="healthyTasty">Healthy & Tasty</button>
+            <button class="destination hover:text-indigo-400"data-i18n="dakshinFlavour">Dakshin Flavour</button>
+            <button class="destination hover:text-indigo-400"data-i18n="lassiHouse">Lassi House</button>
+            <button class="destination hover:text-indigo-400"data-i18n="northSquare">North Square</button>
+            <button class="destination hover:text-indigo-400"data-i18n="gymKhana">Gym Khana</button>
+            <button class="destination hover:text-indigo-400"data-i18n="dominos">Dominos</button>
+            <button class="destination hover:text-indigo-400"data-i18n="hungry">Hungry</button>
+            <button class="destination hover:text-indigo-400"data-i18n="aavin">Aavin</button>
+          </div>
+        </div>
+
+        <!-- Library -->
+        <div class="bg-gray-800 rounded-2xl p-5 shadow-lg hover:shadow-xl transition">
+          <button class="destination block hover:text-indigo-400 border-none">
+            <h2 class="text-xl font-semibold mb-2 "data-i18n="library">Library</h2>
+          </button>
+          <p class="text-gray-400 text-sm"data-i18n="libraryDescMessage">Quiet study and resource center for all students.</p>
+        </div>
+
+        <!-- Health Center -->
+        <div class="bg-gray-800 rounded-2xl p-5 shadow-lg hover:shadow-xl transition">
+          <button class="destination block hover:text-indigo-400 border-none">
+            <h2 class="text-xl font-semibold mb-2"data-i18n="health">Health Center</h2>
+          </button>
+          <p class="text-gray-400 text-sm"data-i18n="healthDescMessage">Medical consultations and first aid facilities.</p>
+        </div>
+
+        <!-- Auditorium -->
+        <div class="bg-gray-800 rounded-2xl p-5 shadow-lg hover:shadow-xl transition">
+          <h2 class="text-xl font-semibold mb-2"data-i18n="auditorium">Auditorium</h2>
+          <p class="text-gray-400 text-sm mb-3"data-i18n="audiDescMessage">Venues for events and cultural programs.</p>
+          <div class="grid grid-cols-2 gap-3">
+            <button class="destination hover:text-indigo-400"data-i18n="mg">MG AuditorSium</button>
+            <button class="destination hover:text-indigo-400"data-i18n="kamaraj">Kamaraj Auditorium</button>
+            <button class="destination hover:text-indigo-400"data-i18n="kasturba">Kasturba Auditorium</button>
+          </div>
+        </div>
+
+        <!-- Administrative -->
+        <div class="bg-gray-800 rounded-2xl p-5 shadow-lg hover:shadow-xl transition">
+          <h2 class="text-xl font-semibold mb-2"data-i18n="admin">Administrative Blocks</h2>
+          <p class="text-gray-400 text-sm mb-3"data-i18n="adminDescMessage">University administration and support offices.</p>
+          <div class="grid grid-cols-2 gap-3">
+            <button class="destination hover:text-indigo-400"data-i18n="adminBuilding">Administrative Building</button>
+            <button class="destination hover:text-indigo-400"data-i18n="alpha">Alpha Block</button>
+            <button class="destination hover:text-indigo-400"data-i18n="delta">Delta Block</button>
+            <button class="destination hover:text-indigo-400"data-i18n="sigma">Sigma Block</button>
+          </div>
+        </div>
+
+        <!-- Grounds -->
+        <div class="bg-gray-800 rounded-2xl p-5 shadow-lg hover:shadow-xl transition">
+          <h2 class="text-xl font-semibold mb-2"data-i18n="grounds">Grounds & Courts</h2>
+          <p class="text-gray-400 text-sm mb-3"data-i18n="groundsDescMessage">Sports and recreation fields across campus.</p>
+          <div class="grid grid-cols-2 gap-3">
+            <button class="destination hover:text-indigo-400"data-i18n="mainGround">Main Ground</button>
+            <button class="destination hover:text-indigo-400"data-i18n="cricket">Cricket Ground</button>
+            <button class="destination hover:text-indigo-400"data-i18n="Football">Football Ground</button>
+            <button class="destination hover:text-indigo-400"data-i18n="basketball">Basketball Court</button>
+            <button class="destination hover:text-indigo-400"data-i18n="tennis">Tennis Court</button>
+            <button class="destination hover:text-indigo-400"data-i18n="volleyball">Volleyball Court</button>
+          </div>
+        </div>
+
+        <!-- Others -->
+        <div class="bg-gray-800 rounded-2xl p-5 shadow-lg hover:shadow-xl transition">
+          <h2 class="text-xl font-semibold mb-2"data-i18n="others">Others</h2>
+          <p class="text-gray-400 text-sm mb-3"data-i18n="othersDescMessage">Shops and services for students and staff.</p>
+          <div class="grid grid-cols-2 gap-3">
+            <button class="destination hover:text-indigo-400"data-i18n="salon">Smart Heads Salon</button>
+            <button class="destination hover:text-indigo-400"data-i18n="bank">Indian Bank</button>
+            <button class="destination hover:text-indigo-400"data-i18n="vMart">V-Mart</button>
+            <button class="destination hover:text-indigo-400"data-i18n="swimmingPool">Swimming pool</button>
+            <button class="destination hover:text-indigo-400"data-i18n="courierPoint">Courier Point</button>
+            <button class="destination hover:text-indigo-400"data-i18n="sedaxis">Sedaxis</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    let map, marker;
+
+    function initMap(lat = 12.8406, lon = 80.1531) {
+      if (!map) {
+        map = L.map('map').setView([lat, lon], 16);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; OpenStreetMap contributors',
+        }).addTo(map);
+      }
+      if (marker) map.removeLayer(marker);
+      marker = L.marker([lat, lon]).addTo(map).bindPopup("You are here").openPopup();
+    }
+
+    // Ask GPS permission once on load
+    window.addEventListener('load', () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            const { latitude, longitude } = pos.coords;
+            initMap(latitude, longitude);
+            document.getElementById("from").value = "My Location";
+            document.getElementById("locationStatus").textContent = "Location detected successfully.";
+          },
+          () => {
+            initMap();
+            document.getElementById("locationStatus").textContent = "GPS denied. Enter manually.";
+          }
+        );
+      }
+    });
+
+    // Manual GPS button
+    document.getElementById("useGPSBtn").addEventListener("click", () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            const { latitude, longitude } = pos.coords;
+            initMap(latitude, longitude);
+            document.getElementById("from").value = "My Location";
+            document.getElementById("locationStatus").textContent = "Location updated.";
+          },
+          () => {
+            document.getElementById("locationStatus").textContent = "Unable to fetch GPS location.";
+          }
+        );
+      }
+    });
+  </script>
+</body>
+</html>
